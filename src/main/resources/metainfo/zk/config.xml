@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- config.xml
+	Purpose:
+		
+	Description:
+		
+	History:
+		Fri, Jul 18, 2014  3:01:08 PM, Created by jumperchen
+
+Copyright (C)  Potix Corporation. All Rights Reserved.
+-->
+
+<config>
+	<config-name>zk-angular</config-name>
+	<version>
+		<version-class>org.zkoss.angular.Version</version-class>
+		<version-uid>0.8.0</version-uid>
+	</version>
+	
+	<listener>
+		<listener-class>org.zkoss.angular.AngularParser</listener-class>
+	</listener>
+	
+	<listener>
+		<listener-class>org.zkoss.angular.WebAppInit</listener-class>
+	</listener>
+</config>

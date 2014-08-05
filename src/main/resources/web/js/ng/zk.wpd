@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<package name="ng" language="xul/html" depends="zul">
+	<script>if (!window.angular) { </script>
+	<script src="ext/angular.min.js"/>
+	<script>} </script>
+	<script src="angular-ext.js"/>
+	<script src="Angular.js"/>
+</package>

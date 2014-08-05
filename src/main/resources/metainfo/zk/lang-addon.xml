@@ -1,0 +1,12 @@
+<language-addon>
+    <addon-name>zk-angular</addon-name>
+	<depends>zkbind</depends>
+  	<version>
+		<version-class>org.zkoss.angular.Version</version-class>
+		<version-uid>0.8.0</version-uid>
+		<zk-version>7.0.3-SNAPSHOT</zk-version><!-- or later -->
+	</version>
+    
+    <javascript package="ng"/>
+	<language-name>xul/html</language-name>
+</language-addon>
