@@ -11,7 +11,19 @@ in this project the View will be the __AngularJS__'s template (HTML & CSS). The 
 
 ### Version
 
-	0.8.0
+0.8.0
+
+### Maven Installation
+	
+	<dependency>
+		<groupId>org.zkoss.angular</groupId>
+		<artifactId>zk-angular</artifactId>
+		<version>0.8.0</version>
+	</dependency>
+
+### Demo Project
+
+ *  [ZK Angular Demo](https://github.com/zkoss/zk-angular-demo)
 	
 ### License
 
