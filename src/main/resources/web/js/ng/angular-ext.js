@@ -40,18 +40,8 @@ App.config(['$httpProvider', '$provide', function ($httpProvider, $provide) {
 				}
 			};
 	}]);
-	
-	 // configure httpBackend provider to handle zk-ng-include requests
-	  $provide.decorator('$httpBackend', ['$delegate', function($httpBackend) {
-		  var updateURI = zk.ajaxURI('/ngInclude', {au:true});
-			// create function which overrides $httpBackend function
-			return function(method, url, post, callback,
-					headers, timeout, withCredentials,
-					responseType) {
-				return $httpBackend.apply(this, arguments);
-			};
-	}]);
 }]);
+// TODO: support no-cache setting
 var zkNgIncludeDirective = ['$http', '$templateCache', '$cacheFactory', '$anchorScroll', '$compile', '$animate', '$sce',
 	function($http,	 $templateCache, $cacheFactory, $anchorScroll,	 $compile,	 $animate,	 $sce) {
 	var $includeCache = $cacheFactory('zknginclude');
@@ -93,29 +83,63 @@ return {
 					currentElement;
 			
 				var cleanupLastIncludeContent = function() {
-					if (currentScope) {
-						currentScope.$destroy();
-						currentScope = null;
-					}
-					if (currentElement) {
-						var parent = zk.Widget.$(currentElement);
-						for (var child = parent.firstChild; child ;) {
-							child.unbind();
-							var oldChild = child;
-							child = child.nextSibling
-							_unlink(parent, oldChild);
+						if (currentScope) {
+							currentScope.$destroy();
+							currentScope = null;
 						}
-						$animate.leave(currentElement);
-						currentElement = null;
-					}
-				};
-			
-				scope.$watch($sce.parseAsResourceUrl(srcExp), function (src) {
-					var afterAnimation = function() {
+						if (currentElement) {
+							var parent = zk.Widget.$(currentElement);
+							for (var child = parent.firstChild; child ;) {
+								child.unbind();
+								var oldChild = child;
+								child = child.nextSibling
+								_unlink(parent, oldChild);
+							}
+							$animate.leave(currentElement);
+							currentElement = null;
+						}
+					},
+					afterAnimation = function() {
 						if (autoScrollExp != 'undefined' && (!autoScrollExp || scope.$eval(autoScrollExp))) {
 							$anchorScroll();
 						}
+					},
+					_transclusion = function (newScope, currentPath, cache, hasZKComponent) {
+						return function(clone) {
+							cleanupLastIncludeContent();
+							currentScope = newScope;
+							currentElement = clone;
+							currentElement.html(cache.src);
+							$animate.enter(currentElement, null, $element, afterAnimation);
+
+							if (hasZKComponent) {
+								zk.afterMount(function () {
+									var cmds = cache.cmds,
+										dt = cache.dt,	
+										parent = zk.Widget.$(currentElement);
+									jq(cache.wgts).each( function () {
+										_link(parent, this);
+										this.bind(dt);
+									});
+									currentScope.$currentPath = currentPath;
+									$compile(currentElement.contents())(currentScope);
+									currentScope.$emit('$includeContentLoaded');
+									scope.$eval(onloadExp);
+									if (cmds.length) {
+										zk.afterMount(function () {
+											zAu.doCmds(dt.id, cmds);
+										}, 5); // call later
+									}
+								}, -1);
+							} else { //no zk component
+								currentScope.$currentPath = currentPath;
+													$compile(currentElement.contents())(currentScope);
+													currentScope.$emit('$includeContentLoaded');
+													scope.$eval(onloadExp);
+							}
+						};
 					};
+				scope.$watch($sce.parseAsResourceUrl(srcExp), function (src) {
 					var thisChangeId = ++changeCounter;
 					
 					if (src) {
@@ -125,35 +149,7 @@ return {
 						
 						if (cache) {
 							var newScope = scope.$new();
-							transclusion(newScope, function(clone) {
-								cleanupLastIncludeContent();
-
-								currentScope = newScope;
-								currentElement = clone;
-
-								currentElement.html(cache.src);
-								$animate.enter(currentElement, null, $element, afterAnimation);
-
-								zk.afterMount(function () {
-
-									var parent = zk.Widget.$(currentElement);
-									jq(cache.wgts).each( function () {
-										_link(parent, this);
-										this.bind(dt);
-									});
-									currentScope.$currentPath = currentPath;
-									$compile(currentElement.contents())(currentScope);
-									currentScope.$emit('$includeContentLoaded');
-									scope.$eval(onloadExp);
-									var cmds = cache.cmds,
-										dt = cache.dt;
-									if (cmds.length) {
-										zk.afterMount(function () {
-										zAu.doCmds(dt.id, cmds);
-										}, 5); // call later
-									}
-								}, -1);
-							});
+							transclusion(newScope, _transclusion(newScope, currentPath, cache, true));
 						} else {
 							var wgt = zk.Widget.$($element),
 								dt = wgt.desktop,
@@ -163,9 +159,8 @@ return {
 										params: {src: src, dtid: dt.id, uuid: wgt.uuid},
 										headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
 										transformResponse: function (data) {
-											var zwgt = zk.Widget.$($element);
 											if (thisChangeId !== changeCounter) return;
-											if (!zwgt) return; // nothing to do, if the nested zk-ng-include happened with a src change in a wrong timing.
+											if (!zk.Widget.$($element)) return; // nothing to do, if the nested zk-ng-include happened with a src change in a wrong timing.
 											
 											var out = [],
 												wgts = [],
@@ -174,22 +169,11 @@ return {
 											try {
 												data = jq.evalJSON(data);
 											} catch (e) { //not JSON Format, we assume it is a pure HTML
-												var newScope = scope.$new();
-												  transclusion(newScope, function(clone) {
-													cleanupLastIncludeContent();
-	
-													currentScope = newScope;
-													currentElement = clone;
-													var cache = {src: data, wgts: wgts, cmds: cmds, dt: dt};
-													$includeCache.put(src, cache);
-													currentElement.html(cache.src);
-													$animate.enter(currentElement, null, $element, afterAnimation);
-	
-													currentScope.$currentPath = currentPath;
-													$compile(currentElement.contents())(currentScope);
-													currentScope.$emit('$includeContentLoaded');
-													scope.$eval(onloadExp);
-												});
+												var newScope = scope.$new(),
+													cache = {src: data, wgts: wgts, cmds: cmds, dt: dt};
+												
+												transclusion(newScope, _transclusion(newScope, currentPath, cache, false));
+												$includeCache.put(src, cache);
 												return '';// return
 											}
 											
@@ -208,34 +192,11 @@ return {
 													newwgt.redraw(out);
 													wgts.push(newwgt);
 													if (!z) {									
-														var newScope = scope.$new();
-														  transclusion(newScope, function(clone) {
-															cleanupLastIncludeContent();
-			
-															currentScope = newScope;
-															currentElement = clone;
-															var cache = {src: out.join(''), wgts: wgts, cmds: cmds, dt:dt};
-															$includeCache.put(src, cache);
-															currentElement.html(cache.src);
-															$animate.enter(currentElement, null, $element, afterAnimation);
-			
-															zk.afterMount(function () {
-																var parent = zk.Widget.$(currentElement);
-																jq(wgts).each( function () {
-																	_link(parent, this);
-																	this.bind(dt);
-																});
-																currentScope.$currentPath = currentPath;
-																$compile(currentElement.contents())(currentScope);
-																currentScope.$emit('$includeContentLoaded');
-																scope.$eval(onloadExp);
-																if (cmds.length) {
-																	zk.afterMount(function () {
-																	zAu.doCmds(dt.id, cmds);
-																	}, 5); // call later
-																}
-															}, -1);
-														});
+														var newScope = scope.$new(),
+															cache = {src: out.join(''), wgts: wgts, cmds: cmds, dt:dt};
+														
+														transclusion(newScope, _transclusion(newScope, currentPath, cache, true));
+														$includeCache.put(src, cache);
 													}
 												});
 											}
@@ -298,19 +259,11 @@ App.service('$binder', function () {
 				}
 			}
 		}
-		scope['$command0'] = function() {
-			binder.$command0.apply(binder, arguments);
-		};
-		scope['$globalCommand0'] = function() {
-			binder.$globalCommand0.apply(binder, arguments);
-		};
-		scope['$command'] = function() {
-			binder.$command.apply(binder, arguments);
-		};
-		scope['$globalCommand'] = function() {
-			binder.$globalCommand.apply(binder, arguments);
-		};
-		
+		jq(['$command0', '$globalCommand0', '$command', '$globalCommand']).each(function (index, value) {
+			scope[value] = function() {
+				binder[value].apply(binder, arguments);
+			};
+		});
 		// make our $destroy function is the last one. 
 		setTimeout(function () {
 			scope.$on('$destroy', function() {

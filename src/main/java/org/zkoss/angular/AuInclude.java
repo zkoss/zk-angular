@@ -92,7 +92,17 @@ public class AuInclude implements AuExtension {
 			return;
 		}
 		final String dtid = request.getParameter("dtid");
-		final String src = request.getParameter("src");
+		String src = request.getParameter("src");
+		if (src != null) {
+			//Not sure whether a name might contain ;jsessionid or similar
+			//But we handle this case: x.y;z
+			final int j = src.lastIndexOf(';');
+			if (j > 0) {
+				final int k = src.lastIndexOf('.');
+				if (k >= 0 && j > k && k > src.lastIndexOf('/'))
+					src = src.substring(0, j);
+			}
+		}
 		final WebApp wapp = sess.getWebApp();
 		final WebAppCtrl wappc = (WebAppCtrl) wapp;
 		final Desktop desktop = wappc.getDesktopCache(sess).getDesktop(dtid);
