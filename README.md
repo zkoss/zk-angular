@@ -3,10 +3,10 @@ zk-angular
 
 # A ZK extension for Angular JS
 
-This project aims to provide a convenient way for Java developers to bind the data from server to client and vise versa.
-It contains both powers of [AngularJS][angularjs] and [ZK MVVM][mvvm]; __AngularJS__ 
-is a structural framework for dynamic web applications and provides a complete client-side solution.
-__ZK MVVM__ is a data binder to synchronize data between the View (__ZUL Page__) and ViewModel (__Java Object__),
+This project aims to provide a convenient way for Java developers to bind data from the server to client and vice versa.
+It contains both the powers of [AngularJS][angularjs] and [ZK MVVM][mvvm]; __AngularJS__ 
+is a structural framework for building dynamic web applications and provides a complete client-side solution. On the other hand, 
+__ZK MVVM__ is a data binder to synchronize data between the View (__ZUL Page__) and ViewModel (__Java Object__) where
 in this project the View will be the __AngularJS__'s template (HTML & CSS). The following figure illustrates the whole concept of this project.
 
 ![ZK Angular Architecture](https://raw.githubusercontent.com/zkoss/zk-angular-demo/master/src/main/webapp/img/zk-ng-architecture.png)
@@ -25,7 +25,8 @@ in this project the View will be the __AngularJS__'s template (HTML & CSS). The 
 
 ### Demo Project
 
- *  [ZK Angular Demo](https://github.com/zkoss/zk-angular-demo)
+ *  [ZK Angular Demo Site](http://www.zkoss.org/zk-angular-demo)
+ *  [ZK Angular Demo Project](https://github.com/zkoss/zk-angular-demo)
 	
 ### License
 

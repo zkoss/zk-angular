@@ -10,7 +10,7 @@
 		<commons-io>2.4</commons-io>
 		<commons-lang>2.6</commons-lang>
 		<maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
-		<packname>-${project.version}-FL-${maven.build.timestamp}</packname>
+		<packname>-${project.version}-${maven.build.timestamp}</packname>
 	</properties>
 	<packaging>jar</packaging>
 	<name>The zk-angular library</name>

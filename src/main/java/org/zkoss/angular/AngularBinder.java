@@ -36,7 +36,7 @@ import org.zkoss.zk.ui.sys.ComponentCtrl;
 import org.zkoss.zk.ui.util.Clients;
 
 /**
- * An angular JS binder for binding the value from client to server and vise
+ * An angular JS binder for binding the value from client to server and vice
  * versa.
  * 
  * @author jumperchen

@@ -35,7 +35,7 @@ import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.util.Clients;
 
 /**
- * An angular JS composer for binding the data from client to server and vise
+ * An angular JS composer for binding the data from client to server and vice
  * versa.
  * 
  * @author jumperchen
