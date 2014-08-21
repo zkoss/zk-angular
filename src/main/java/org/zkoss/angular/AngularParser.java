@@ -55,7 +55,7 @@ public class AngularParser implements NamespaceParser {
 		RESERVED_WORD.put("value", Boolean.TRUE);
 		RESERVED_WORD.put("model-options", Boolean.TRUE);
 		RESERVED_WORD.put("bind-template", Boolean.TRUE);
-		RESERVED_WORD.put("bind-html", Boolean.TRUE);
+//		RESERVED_WORD.put("bind-html", Boolean.TRUE);
 		RESERVED_WORD.put("class", Boolean.TRUE);
 		RESERVED_WORD.put("class-odd", Boolean.TRUE);
 		RESERVED_WORD.put("class-even", Boolean.TRUE);
@@ -138,7 +138,7 @@ public class AngularParser implements NamespaceParser {
 	}
 
 	private static boolean isAnnotationSugar(String attrName) {
-		return ("model".equals(attrName) || "bind".equals(attrName));
+		return ("model".equals(attrName) || "bind".equals(attrName) || "bind-html".equals(attrName));
 	}
 	private static boolean isAnnotatable(String attrName) {
 		return !RESERVED_WORD.containsKey(attrName);
