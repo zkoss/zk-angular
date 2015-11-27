@@ -9,6 +9,8 @@ is a structural framework for building dynamic web applications and provides a c
 __ZK MVVM__ is a data binder to synchronize data between the View (__ZUL Page__) and ViewModel (__Java Object__) where
 in this project the View will be the __AngularJS__'s template (HTML & CSS). The following figure illustrates the whole concept of this project.
 
+ * This is an experimental project created based on ZK 7.0.3. If you are interested in learning more, please [contact us](mailto:info@zkoss.org).
+ 
 ![ZK Angular Architecture](https://raw.githubusercontent.com/zkoss/zk-angular-demo/master/src/main/webapp/img/zk-ng-architecture.png)
 
 ### Version

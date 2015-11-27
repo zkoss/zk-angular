@@ -6,7 +6,7 @@
 	<artifactId>zk-angular</artifactId>
 	<version>0.8.0</version>
 	<properties>
-		<zk.version>7.0.3.FL.20140801</zk.version>
+		<zk.version>8.0.0-SNAPSHOT</zk.version>
 		<commons-io>2.4</commons-io>
 		<commons-lang>2.6</commons-lang>
 		<maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>

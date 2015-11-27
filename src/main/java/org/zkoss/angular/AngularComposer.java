@@ -13,6 +13,7 @@ package org.zkoss.angular;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import org.zkoss.bind.Binder;
 import org.zkoss.bind.impl.BindContextImpl;
 import org.zkoss.bind.impl.BinderUtil;
 import org.zkoss.bind.sys.BindEvaluatorX;
+import org.zkoss.bind.tracker.impl.BindUiLifeCycle;
 import org.zkoss.json.JSONAware;
 import org.zkoss.lang.Objects;
 import org.zkoss.xel.ExpressionX;
@@ -73,11 +75,41 @@ public class AngularComposer<T extends Component> extends BindComposer<T>
 		// bind self au service
 		comp.setAuService(this);
 	}
-
+	private final LinkedList<Loader> _queue = new LinkedList<Loader>();
+	
 	public Map<String, Object> getBindingAttributes() {
 		return _bindingAttrs;
 	}
+	public void book(Binder binder, Component comp) {
+		_queue.add(new Loader(binder, comp));
+	}
+	private static class Loader{
+		Binder binder;
+		Component comp;
+		public Loader(Binder _binder, Component comp) {
+			super();
+			this.binder = _binder;
+			this.comp = comp;
+		}
+		public void load(){
+			//ZK-1699, mark the comp and it's children are handling, to prevent load twice in include.src case 
+			BindUiLifeCycle.markLifeCycleHandling(comp);
+			
+			//load data
+			binder.loadComponent(comp, true);//load all bindings
+		}
+	}//end of class...
+	public boolean isRootBinder(Binder binder){
+		return _queue.getFirst().binder == binder; 
+	}
 
+	private static final String KEY_BINDER_KEEPER = "$BinderKeeper$"; 
+	public void loadComponentForAllBinders(){
+		self.removeAttribute(KEY_BINDER_KEEPER);
+		for(Loader loader : _queue){
+			loader.load();
+		}
+	}
 	public boolean service(AuRequest request, boolean everError) {
 		final String cmd = request.getCommand();
 		if ("onBindCommand".equals(cmd)) {
